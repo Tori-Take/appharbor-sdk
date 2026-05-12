@@ -29,7 +29,7 @@
   },
   "repository": {
     "type": "git",
-    "url":  "https://github.com/Tori-Take/sdk.git"
+    "url":  "https://github.com/Tori-Take/appharbor-sdk.git"
   },
   "license": "MIT",
   "keywords": ["appharbor", "cartridge", "sdk", "supabase"],

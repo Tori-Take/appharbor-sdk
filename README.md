@@ -29,7 +29,7 @@ import { createBrowserSupabase } from '@appharbor/sdk/client'
 ```json
 {
   "dependencies": {
-    "@appharbor/sdk": "github:Tori-Take/sdk#main"
+    "@appharbor/sdk": "github:Tori-Take/appharbor-sdk#main"
   }
 }
 ```
@@ -37,7 +37,7 @@ import { createBrowserSupabase } from '@appharbor/sdk/client'
 特定タグを指定する場合:
 
 ```json
-"@appharbor/sdk": "github:Tori-Take/sdk#v0.1.0"
+"@appharbor/sdk": "github:Tori-Take/appharbor-sdk#v0.1.0"
 ```
 
 ---
