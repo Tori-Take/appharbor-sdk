@@ -26,6 +26,15 @@ export type OrgRole = 'member' | 'dept-admin' | 'org-admin'
 /** プラットフォーム全体の管理者か */
 export type PlatformRole = 'platform-admin' | null
 
+/**
+ * Platform Admin の認証主体。組織に所属しないので organizationId を持たない。
+ * 実装側 (AppHarbor / Studio) は追加プロパティを足してよいが、最低限ここを満たす。
+ */
+export interface PlatformActor {
+  id:    string
+  email: string
+}
+
 // ─── アプリコンテキスト ───────────────────────────────────
 
 /**
@@ -43,6 +52,11 @@ export interface AppContext {
 /** `requireActor()` の戻り値 */
 export type RequireActorResult =
   | { ok: true;  actor: Actor }
+  | { ok: false; error: string }
+
+/** `requirePlatformAdmin()` の戻り値 */
+export type RequirePlatformAdminResult =
+  | { ok: true;  actor: PlatformActor }
   | { ok: false; error: string }
 
 // ─── アプリロール解決 ─────────────────────────────────────

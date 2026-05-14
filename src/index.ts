@@ -24,6 +24,7 @@ import type {
   GetAppRoleArgs,
   OrgRole,
   RequireActorResult,
+  RequirePlatformAdminResult,
 } from './types'
 
 export type {
@@ -37,9 +38,11 @@ export type {
   OrganizationRow,
   OrgRole,
   AppRow,
+  PlatformActor,
   PlatformRole,
   ProfileRow,
   RequireActorResult,
+  RequirePlatformAdminResult,
 } from './types'
 
 // ============================================================
@@ -103,6 +106,22 @@ export async function getAppRole(_args: GetAppRoleArgs): Promise<string | null> 
   )
 }
 
+/**
+ * Platform Admin 権限を要求する。
+ * 組織に所属しないグローバル管理者の認証チェック。
+ * /platform/** 配下の Server Action / layout で呼ぶ想定。
+ *
+ * @example
+ * const guard = await requirePlatformAdmin()
+ * if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: 403 })
+ */
+export async function requirePlatformAdmin(): Promise<RequirePlatformAdminResult> {
+  throw new Error(
+    '[@appharbor/sdk] requirePlatformAdmin() スタブが呼ばれました。' +
+    'ホスト環境 (Studio / AppHarbor) で実装に差し替えてください。',
+  )
+}
+
 // ============================================================
 // Supabase クライアント
 // ============================================================
@@ -122,6 +141,24 @@ export async function getAppRole(_args: GetAppRoleArgs): Promise<string | null> 
 export function getAdminSupabase(): SupabaseClient {
   throw new Error(
     '[@appharbor/sdk] getAdminSupabase() スタブが呼ばれました。' +
+    'ホスト環境 (Studio / AppHarbor) で実装に差し替えてください。',
+  )
+}
+
+/**
+ * サーバーサイドで使う Supabase クライアント (ユーザー認証セッション付き)。
+ * RLS が適用される。Server Component / Server Action / API ルートで使用。
+ *
+ * AppHarbor 本番では Cookie ベースの認証セッションを引き継ぐ。
+ * Studio では Cookie のモックユーザーに対応する supabase クライアントを返す。
+ *
+ * @example
+ * const supabase = await createServerSupabase()
+ * const { data: { user } } = await supabase.auth.getUser()
+ */
+export async function createServerSupabase(): Promise<SupabaseClient> {
+  throw new Error(
+    '[@appharbor/sdk] createServerSupabase() スタブが呼ばれました。' +
     'ホスト環境 (Studio / AppHarbor) で実装に差し替えてください。',
   )
 }
