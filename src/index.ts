@@ -22,6 +22,8 @@ import type {
   Actor,
   AppContext,
   GetAppRoleArgs,
+  NotifyInput,
+  NotifyResult,
   OrgRole,
   RequireActorResult,
   RequirePlatformAdminResult,
@@ -35,6 +37,10 @@ export type {
   CartridgePermission,
   DepartmentRow,
   GetAppRoleArgs,
+  NotificationRow,
+  NotifyInput,
+  NotifyResult,
+  NotifyScope,
   OrganizationRow,
   OrgRole,
   AppRow,
@@ -159,6 +165,51 @@ export function getAdminSupabase(): SupabaseClient {
 export async function createServerSupabase(): Promise<SupabaseClient> {
   throw new Error(
     '[@appharbor/sdk] createServerSupabase() スタブが呼ばれました。' +
+    'ホスト環境 (Studio / AppHarbor) で実装に差し替えてください。',
+  )
+}
+
+// ============================================================
+// 通知（インフォ）
+// ============================================================
+
+/**
+ * AppHarbor プラットフォームの「お知らせ」へ通知を発火する。
+ *
+ * カートリッジ起点で組織メンバー / 特定部署 / 特定ユーザーへ通知を送る。
+ * AppHarbor 本番では `announcements` テーブルへ INSERT され、AppHarbor のヘッダー
+ * ベルや組織ダッシュボードに表示される。Studio では PGlite の `notifications`
+ * テーブルへ INSERT され、Studio chrome のベル UI に表示される。
+ *
+ * `source_app_id` / `organization_id` / `created_by` はホスト環境がリクエスト
+ * コンテキストから自動補完するので、呼び出し側は title / body / scope / target
+ * を渡すだけでよい。
+ *
+ * @example
+ * // 組織全員へ
+ * await notify({ title: '月次レポートが公開されました' })
+ *
+ * @example
+ * // 特定部署へ
+ * await notify({
+ *   title: '営業本部 全員へ',
+ *   scope: 'dept',
+ *   targetDeptId: deptId,
+ * })
+ *
+ * @example
+ * // 特定ユーザーへ（承認依頼など）
+ * await notify({
+ *   title: '巡回点検の承認待ちがあります',
+ *   body:  '田中さんが点検を提出しました',
+ *   scope: 'user',
+ *   targetUserId: approverId,
+ *   link:  `/org/${slug}/apps/patrol-navi/admin/approvals`,
+ * })
+ */
+export async function notify(_input: NotifyInput): Promise<NotifyResult> {
+  throw new Error(
+    '[@appharbor/sdk] notify() スタブが呼ばれました。' +
     'ホスト環境 (Studio / AppHarbor) で実装に差し替えてください。',
   )
 }

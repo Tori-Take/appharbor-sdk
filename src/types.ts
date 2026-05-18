@@ -139,3 +139,73 @@ export interface CartridgeManifest {
   navigation?:     CartridgeNavItem[]
   studioCompatible?: boolean
 }
+
+// ─── 通知（インフォ） ────────────────────────────────────
+
+/** 通知の配信スコープ */
+export type NotifyScope = 'org' | 'dept' | 'user'
+
+/**
+ * `notify()` の入力ペイロード。
+ * カートリッジから AppHarbor プラットフォームの「お知らせ」へ通知を発火する。
+ *
+ * 自動補完される（呼び出し側で渡す必要なし）:
+ *   - source_app_id   : ホスト環境がリクエストヘッダー (x-cartridge-id) から解決
+ *   - organization_id : ホスト環境が現在の組織から解決
+ *   - created_by      : ホスト環境が現在のユーザーから解決
+ *
+ * @example
+ * await notify({
+ *   title: '巡回点検の承認待ちがあります',
+ *   body:  '田中さんが提出しました',
+ *   scope: 'user',
+ *   targetUserId: '...',
+ *   link:  '/org/<slug>/apps/patrol-navi/admin/approvals',
+ * })
+ */
+export interface NotifyInput {
+  /** 通知のタイトル（必須） */
+  title:         string
+  /** 通知の本文 */
+  body?:         string
+  /** クリック時に遷移する URL（相対パス推奨） */
+  link?:         string
+  /** 配信スコープ。デフォルト 'org' */
+  scope?:        NotifyScope
+  /** scope='dept' のとき必須。対象部署 ID */
+  targetDeptId?: string | null
+  /** scope='user' のとき必須。対象ユーザー ID */
+  targetUserId?: string | null
+  /**
+   * 発信元カートリッジ ID。
+   * 通常は middleware が x-cartridge-id ヘッダーから自動解決するので渡さなくてよい。
+   * カートリッジルート外 (cron job, 外部 webhook) から発火する時のみ明示指定。
+   */
+  sourceAppId?:  string
+}
+
+/** `notify()` の戻り値 */
+export interface NotifyResult {
+  /** 作成された通知の ID */
+  id: string
+}
+
+/**
+ * 通知行（Studio / AppHarbor 本体の UI が表示用に取得する shape）。
+ * カートリッジ作者が直接これを構築することはない。Studio chrome の Bell UI 等が使う。
+ */
+export interface NotificationRow {
+  id:              string
+  sourceAppId:     string
+  organizationId:  string
+  scope:           NotifyScope
+  targetDeptId:    string | null
+  targetUserId:    string | null
+  title:           string
+  body:            string
+  link:            string | null
+  createdBy:       string | null
+  createdAt:       string
+  /** 現在のユーザーから見た既読時刻（未読なら null） */
+  readAt:          string | null
+}
