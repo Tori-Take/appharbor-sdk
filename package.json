@@ -1,6 +1,6 @@
 {
   "name": "@appharbor/sdk",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "AppHarbor カートリッジ開発用 SDK の契約 (型 + 関数シグネチャ)",
   "type": "module",
   "main": "./src/index.ts",

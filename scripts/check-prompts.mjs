@@ -45,22 +45,34 @@ async function main() {
     for (const n of await extractExportedNames(f)) exported.add(n)
   }
 
-  let files = []
-  try {
-    files = (await readdir(PROMPT_DIR)).filter((f) => f.endsWith('.md'))
-  } catch {
-    console.log('[check-prompts] prompts/ ディレクトリが無いのでスキップ')
+  // prompts/ 配下を再帰的に .md ファイル列挙 (recipes/ サブディレクトリも対象)
+  async function listMd(dir) {
+    let entries
+    try { entries = await readdir(dir, { withFileTypes: true }) } catch { return [] }
+    const out = []
+    for (const e of entries) {
+      const full = join(dir, e.name)
+      if (e.isDirectory()) out.push(...await listMd(full))
+      else if (e.name.endsWith('.md')) out.push(full)
+    }
+    return out
+  }
+
+  const files = await listMd(PROMPT_DIR)
+  if (files.length === 0) {
+    console.log('[check-prompts] prompts/*.md が見つからないのでスキップ')
     process.exit(0)
   }
 
   const missing = [] // { file, name, line }
-  for (const f of files) {
-    const text  = await readFile(join(PROMPT_DIR, f), 'utf-8')
+  for (const fullPath of files) {
+    const rel   = fullPath.slice(ROOT.length + 1).replaceAll('\\', '/')
+    const text  = await readFile(fullPath, 'utf-8')
     const lines = text.split('\n')
     for (let i = 0; i < lines.length; i++) {
       for (const m of lines[i].matchAll(TARGET_RE)) {
         const name = m[1]
-        if (!exported.has(name)) missing.push({ file: f, name, line: i + 1 })
+        if (!exported.has(name)) missing.push({ file: rel, name, line: i + 1 })
       }
     }
   }
@@ -72,7 +84,7 @@ async function main() {
 
   console.error('[check-prompts] FAIL — SDK で export されていない識別子が prompts に含まれます:')
   for (const { file, name, line } of missing) {
-    console.error(`  prompts/${file}:${line}  ${name}`)
+    console.error(`  ${file}:${line}  ${name}`)
   }
   console.error('')
   console.error('対応: prompts/ を実際の SDK export に合わせて更新するか、SDK に該当関数を追加してください。')
