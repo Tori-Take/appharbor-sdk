@@ -42,3 +42,21 @@
 - [Tori-Take/cartridge-template](https://github.com/Tori-Take/cartridge-template) — 雛形（このパッケージを依存）
 - [Tori-Take/cart-patrol-navi](https://github.com/Tori-Take/cart-patrol-navi) — 実用カートリッジ
 - [Tori-Take/AppHarborStudio](https://github.com/Tori-Take/AppHarborStudio) — 実装提供側
+
+## 📝 ポストモーテム運用
+
+このリポジトリは **3リポジトリ（SDK / AppHarbor / AppHarborStudio）のポストモーテム索引** を持つ。
+
+### 「ポストモーテム作って」と言われたら
+
+1. **原因の場所を判定**
+   - SDK API / 型契約の不備 → このリポジトリで詳細記録
+   - 複数リポジトリ横断 → このリポジトリで詳細記録 + 索引追加
+   - 他リポジトリ単独の問題 → 該当リポジトリで作成し、ここに索引のみ追加
+
+2. **テンプレート**: `postmortems/_template.md` をコピー
+   ファイル名: `postmortems/YYYY-MM-DD-短い説明.md`
+
+3. **索引を更新**: `postmortems/README.md` の表に追記
+
+4. **人間に確認 → PR 作成**
