@@ -88,6 +88,19 @@ const supabase = createBrowserSupabase()
 // supabase.from(...).select(...) で読み書き可能
 ```
 
+### 全画面表示（任意）
+
+ゲームや没入系アプリは `manifest.json` に `fullscreen: true` を指定すると、本体の chrome（ヘッダー / サイドバー / ボトムナビ）を隠して全画面表示できます。その場合、本体の戻る導線が消えるため `@appharbor/sdk/client` の `<BackToAppHarbor />` を**最低 1 箇所必ず配置**してください（置かないと Studio の規約チェックが error になります）。
+
+```tsx
+'use client'
+import { BackToAppHarbor } from '@appharbor/sdk/client'
+
+export default function Page() {
+  return <main><BackToAppHarbor />{/* ゲーム本体 */}</main>
+}
+```
+
 ---
 
 ## 5. スキーマ設計の推奨

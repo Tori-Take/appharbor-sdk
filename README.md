@@ -58,6 +58,7 @@ import { createBrowserSupabase } from '@appharbor/sdk/client'
 | 関数 | 用途 |
 |---|---|
 | `createBrowserSupabase()` | クライアントコンポーネント用 Supabase クライアント |
+| `<BackToAppHarbor />` | 全画面アプリで「本体に戻る」導線（manifest `fullscreen: true` 時は必須） |
 
 ### 型 (`@appharbor/sdk/types` または `@appharbor/sdk`)
 
@@ -134,6 +135,24 @@ import { createBrowserSupabase } from '@appharbor/sdk/client'
 export function UploadButton() {
   const supabase = createBrowserSupabase()
   // ...
+}
+```
+
+### 全画面表示（任意）
+
+`manifest.json` に `fullscreen: true` を指定すると、本体の chrome（ヘッダー / サイドバー / ボトムナビ）を隠して全画面表示します。全画面では本体メニューが出ないため、`@appharbor/sdk/client` の `<BackToAppHarbor />` を最低 1 箇所必ず置いてください（Studio の規約チェックで必須）。
+
+```tsx
+'use client'
+import { BackToAppHarbor } from '@appharbor/sdk/client'
+
+export default function Page() {
+  return (
+    <main>
+      <BackToAppHarbor />
+      {/* ゲーム本体など */}
+    </main>
+  )
 }
 ```
 
