@@ -138,6 +138,12 @@ export interface CartridgeManifest {
   permissions:     CartridgePermission[]
   navigation?:     CartridgeNavItem[]
   studioCompatible?: boolean
+  /**
+   * true のとき本体 chrome（ヘッダー / サイドバー / ボトムナビ）を隠して全画面表示する（既定 false）。
+   * 全画面アプリは本体メニューが出ないため、`@appharbor/sdk/client` の `<BackToAppHarbor />` を
+   * 最低 1 箇所置くこと（戻る導線が必須。Studio の規約チェックで強制される）。
+   */
+  fullscreen?:     boolean
 }
 
 // ─── 通知（インフォ） ────────────────────────────────────

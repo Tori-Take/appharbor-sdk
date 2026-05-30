@@ -1,6 +1,6 @@
 {
   "name": "@appharbor/sdk",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "AppHarbor カートリッジ開発用 SDK の契約 (型 + 関数シグネチャ)",
   "type": "module",
   "main": "./src/index.ts",
@@ -53,6 +53,7 @@
   },
   "devDependencies": {
     "@supabase/supabase-js": "^2.105.4",
+    "@types/react": "^19",
     "typescript": "^6.0.3"
   }
 }
