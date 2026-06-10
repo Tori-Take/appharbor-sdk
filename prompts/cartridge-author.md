@@ -52,10 +52,13 @@ const { data } = await supabase.from('my_items').select('*')
 | `react` / `react-dom` | `import { useState } from 'react'` |
 | `next/*` | `import Link from 'next/link'` |
 | 相対パス | `import { Foo } from './components/Foo'` |
-| npm パッケージ | `import { format } from 'date-fns'` |
+| ホスト同梱パッケージ | `lucide-react` / `clsx` / `tailwind-merge` / `class-variance-authority` / `xlsx` / `@base-ui/react/*` |
+| Node 標準 | `import { join } from 'path'` |
 
 **禁止**:
-- `@/lib/*` / `@/components/*` / `@/app/*` — Studio 内部モジュール (本番では存在しない)
+- `@/lib/*` / `@/components/*` / `@/app/*` — Studio 内部モジュール (本番では存在しない) → lint **error**
+- 上記以外の npm パッケージ — ホスト環境 (Studio / AppHarbor 本番) に同梱されておらず
+  本番ビルドで落ちる可能性 → lint **warn**。必要な場合はホスト側への追加を先に相談する
 - ホスト環境固有の API (Studio の `/api/pg-query` 等を直接叩く等)
 
 ---
