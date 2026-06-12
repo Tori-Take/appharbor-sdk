@@ -137,6 +137,14 @@ export interface CartridgeManifest {
   }
   permissions:     CartridgePermission[]
   navigation?:     CartridgeNavItem[]
+  /** カートリッジが作成するテーブル名の共通プレフィックス（例: 'patrol'） */
+  tablePrefix?:    string
+  /**
+   * db/schema.sql で作成する全テーブル名。
+   * AppHarbor 本番の「DB セットアップ」ダイアログがこの配列を見て本番 Supabase に
+   * テーブルが存在するかを確認する。schema.sql にテーブルを足したらここにも追加する。
+   */
+  tables?:         string[]
   studioCompatible?: boolean
   /**
    * true のとき本体 chrome（ヘッダー / サイドバー / ボトムナビ）を隠して全画面表示する（既定 false）。
