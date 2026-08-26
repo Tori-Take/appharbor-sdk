@@ -121,6 +121,16 @@ export interface CartridgeNavItem {
   path:  string
 }
 
+/**
+ * カートリッジのソースリポジトリ情報。
+ * 改修ループ（独立リポジトリで編集 → AppHarbor に再取り込み）の起点となる出所メタデータ。
+ */
+export interface CartridgeRepository {
+  url:     string   // 必須: 例 "https://github.com/user/typingdash-cartridge"
+  ref?:    string   // 任意: branch / tag (デフォルト: リポジトリの default branch)
+  commit?: string   // 任意: 取り込み時の commit SHA（スナップショット記録）
+}
+
 export interface CartridgeManifest {
   $schema?:        string
   spec_version?:   string
@@ -135,6 +145,15 @@ export interface CartridgeManifest {
     url?:  string
     email?: string
   }
+  repository?:     CartridgeRepository
+  /**
+   * データアクセスの信頼レベル。
+   *   'scoped'（省略時の既定）… getAdminSupabase（マスターキー）の使用を禁止。
+   *     createServerSupabase 経由で組織の壁（RLS）の中でしか動けない。外部作者はこれ必須。
+   *   'privileged' … getAdminSupabase の使用を許可。社内・信頼済み作者のみ。
+   * 詳細: カートリッジ作成工程の再設計 §2（AppHarbor リポジトリ docs/plan-cartridge-pipeline-redesign.md）
+   */
+  dataAccess?:     'scoped' | 'privileged'
   permissions:     CartridgePermission[]
   navigation?:     CartridgeNavItem[]
   /** カートリッジが作成するテーブル名の共通プレフィックス（例: 'patrol'） */
@@ -152,6 +171,9 @@ export interface CartridgeManifest {
    * 最低 1 箇所置くこと（戻る導線が必須。Studio の規約チェックで強制される）。
    */
   fullscreen?:     boolean
+  depends?:        string[]   // 他カートリッジ id
+  emits?:          string[]   // イベント名
+  subscribes?:     string[]   // 購読イベント名
 }
 
 // ─── 通知（インフォ） ────────────────────────────────────

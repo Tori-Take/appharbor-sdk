@@ -1,7 +1,7 @@
 {
   "name": "@appharbor/sdk",
-  "version": "0.4.1",
-  "description": "AppHarbor カートリッジ開発用 SDK の契約 (型 + 関数シグネチャ)",
+  "version": "0.5.0",
+  "description": "AppHarbor カートリッジ開発用 SDK の契約 (型 + 関数シグネチャ) + カートリッジ検査エンジン (kit)",
   "type": "module",
   "main": "./src/index.ts",
   "module": "./src/index.ts",
@@ -9,10 +9,15 @@
   "exports": {
     ".": "./src/index.ts",
     "./client": "./src/client.ts",
-    "./types": "./src/types.ts"
+    "./types": "./src/types.ts",
+    "./kit": {
+      "types": "./kit/validate.d.ts",
+      "default": "./kit/validate.mjs"
+    }
   },
   "files": [
     "src",
+    "kit",
     "prompts",
     "README.md",
     "CLAUDE.md",
