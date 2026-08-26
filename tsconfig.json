@@ -17,5 +17,5 @@
     "allowImportingTsExtensions": false,
     "noEmit": true
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "kit/**/*.d.ts"]
 }
