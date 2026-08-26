@@ -20,6 +20,8 @@ export type ValidationIssue = {
   message:  string
   /** 短い分類ラベル（'forbidden-import' / 'data-access' / 'schema:rls-disabled' 等）。任意。 */
   rule?:    string
+  /** 具体的な短い値（import 指定子・テーブル名・ポリシー名等）。UI 表示用。任意。 */
+  spec?:    string
 }
 
 export type ValidationResult = {
