@@ -102,10 +102,11 @@ export function validateCartridge(dir, opts = {}) {
   if (!manifest.permissions || manifest.permissions.length === 0) {
     error('manifest.permissions が空', 'manifest.json')
   }
-  if (!manifest.tables) {
-    error('manifest.tables 未指定', 'manifest.json')
-  } else if (manifest.tables.length === 0) {
-    warn('manifest.tables が空 (DB を使わないアプリ?)', 'manifest.json')
+  const hasDeclaredTables = Array.isArray(manifest.tables) && manifest.tables.length > 0
+  if (manifest.tables === undefined) {
+    warn('manifest.tables 未指定（DB を使わないアプリなら "tables": [] を明記してください）', 'manifest.json')
+  } else if (!hasDeclaredTables) {
+    // 明示的に空配列 = DB 不要と意図的に宣言しているとみなす（何も出さない）
   } else {
     for (const t of manifest.tables) {
       if (!isTableNameValid(t, manifest.id, manifest.tablePrefix)) {
@@ -141,7 +142,11 @@ export function validateCartridge(dir, opts = {}) {
     if (!existsSync(join(dir, f))) warn(`${f} が無い (推奨)`)
   }
   if (!existsSync(join(dir, 'routes'))) error('routes/ ディレクトリが必須')
-  if (!existsSync(join(dir, 'db', 'schema.sql'))) error('db/schema.sql が必須')
+  // schema.sql が必須なのは manifest.tables にテーブルを宣言している場合のみ。
+  // DB を使わないアプリ（tables: [] または未指定）は schema.sql が無くてよい。
+  if (hasDeclaredTables && !existsSync(join(dir, 'db', 'schema.sql'))) {
+    error('db/schema.sql が必須（manifest.tables にテーブルが宣言されています）')
+  }
 
   for (const name of readdirSync(dir)) {
     const full = join(dir, name)
