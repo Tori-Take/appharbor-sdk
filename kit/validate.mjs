@@ -41,9 +41,9 @@ export const ALLOWED_DIRS = ['routes', 'server', 'components', 'db', 'lifecycle'
 
 // ─── 全ホスト共通の禁止パターン ──────────────────────────────
 const FORBIDDEN_CALLS = [
-  { re: /supabase\.auth\.(?!getUser\b)/, label: 'forbidden-call' },
-  { re: /\beval\s*\(/, label: 'forbidden-call' },
-  { re: /\bnew Function\s*\(/, label: 'forbidden-call' },
+  { re: /supabase\.auth\.(?!getUser\b)/, label: 'forbidden-call', spec: 'supabase.auth.*' },
+  { re: /\beval\s*\(/, label: 'forbidden-call', spec: 'eval()' },
+  { re: /\bnew Function\s*\(/, label: 'forbidden-call', spec: 'new Function()' },
 ]
 
 // dataAccess: 'scoped'（省略時の既定）のカートリッジでは禁止。'privileged' のみ許可。
@@ -65,8 +65,8 @@ const CODE_EXTS = new Set(['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs'])
 export function validateCartridge(dir, opts = {}) {
   const forbiddenImportPrefixes = opts.forbiddenImportPrefixes ?? []
   const issues = []
-  const error = (message, file, line, rule) => issues.push({ severity: 'error', message, file, line, rule })
-  const warn  = (message, file, line, rule) => issues.push({ severity: 'warning', message, file, line, rule })
+  const error = (message, file, line, rule, spec) => issues.push({ severity: 'error', message, file, line, rule, spec })
+  const warn  = (message, file, line, rule, spec) => issues.push({ severity: 'warning', message, file, line, rule, spec })
 
   if (!existsSync(dir) || !statSync(dir).isDirectory()) {
     error(`カートリッジディレクトリが存在しません: ${dir}`)
@@ -181,7 +181,7 @@ export function validateCartridge(dir, opts = {}) {
         if (m) {
           for (const prefix of forbiddenImportPrefixes) {
             if (m[1].startsWith(prefix)) {
-              error(`禁止 import: ${m[1]}（本体/Studio に依存しています。@/sdk 経由に置き換えてください）`, rel, i + 1, 'forbidden-import')
+              error(`禁止 import: ${m[1]}（本体/Studio に依存しています。@/sdk 経由に置き換えてください）`, rel, i + 1, 'forbidden-import', m[1])
               break
             }
           }
@@ -189,7 +189,7 @@ export function validateCartridge(dir, opts = {}) {
 
         for (const fc of FORBIDDEN_CALLS) {
           if (fc.re.test(line)) {
-            error(`禁止 API: ${line.trim()}`, rel, i + 1, fc.label)
+            error(`禁止 API: ${line.trim()}`, rel, i + 1, fc.label, fc.spec)
           }
         }
 
@@ -198,7 +198,7 @@ export function validateCartridge(dir, opts = {}) {
             'getAdminSupabase は manifest.dataAccess が "privileged" のカートリッジでのみ使用できます' +
             '（このカートリッジは未指定 = "scoped"）。組織の壁を通る createServerSupabase に置き換えるか、' +
             '社内・信頼済み作者であれば manifest.json に "dataAccess": "privileged" を明記してください。',
-            rel, i + 1, 'data-access',
+            rel, i + 1, 'data-access', 'getAdminSupabase()',
           )
         }
       }
@@ -210,7 +210,7 @@ export function validateCartridge(dir, opts = {}) {
     error(
       'fullscreen: true のカートリッジには @/sdk/client の <BackToAppHarbor /> を' +
       '最低1箇所配置してください（全画面では本体メニューが出ないため、戻る導線が必須です）',
-      'manifest.json', 0, 'fullscreen',
+      'manifest.json', 0, 'fullscreen', 'fullscreen',
     )
   }
 
@@ -254,7 +254,7 @@ function lintSchemaSql(schemaPath, dir, manifest, error, warn) {
       error(
         `非標準のセッション変数 ${m[0]}。AppHarbor では設定されないため動作しない。` +
         `「organization_id IN (SELECT organization_id FROM profiles WHERE id = auth.uid())」パターンに置き換えてください。`,
-        rel, i + 1, 'schema:session-var',
+        rel, i + 1, 'schema:session-var', m[0],
       )
     }
   }
@@ -266,7 +266,7 @@ function lintSchemaSql(schemaPath, dir, manifest, error, warn) {
   for (const m of tableNameMatches) {
     const tableName = m[2]
     if (!isTableNameValid(tableName, manifest.id, manifest.tablePrefix)) {
-      error(`schema.sql 内のテーブル "${tableName}" が ${manifest.id} の prefix 違反`, rel, undefined, 'schema:table-prefix')
+      error(`schema.sql 内のテーブル "${tableName}" が ${manifest.id} の prefix 違反`, rel, undefined, 'schema:table-prefix', `table ${tableName}`)
     }
   }
 
@@ -316,7 +316,7 @@ function lintSchemaSql(schemaPath, dir, manifest, error, warn) {
         `テーブル "${t.name}" に organization_id 列がありません。` +
         `テナント境界を担保するため、organization_id を追加するか、` +
         `親テーブル経由でテナント境界を辿る RLS ポリシーを書いてください。`,
-        rel, t.lineNum, 'schema:org-id',
+        rel, t.lineNum, 'schema:org-id', `table ${t.name}`,
       )
       continue
     }
@@ -325,7 +325,7 @@ function lintSchemaSql(schemaPath, dir, manifest, error, warn) {
       error(
         `テーブル "${t.name}" で RLS が有効化されていません。` +
         `\`alter table ${t.name} enable row level security;\` を追加してください。`,
-        rel, t.lineNum, 'schema:rls-disabled',
+        rel, t.lineNum, 'schema:rls-disabled', `table ${t.name}`,
       )
     }
 
@@ -333,7 +333,7 @@ function lintSchemaSql(schemaPath, dir, manifest, error, warn) {
       error(
         `テーブル "${t.name}" に RLS ポリシーがありません。` +
         `select / insert / delete のポリシーを定義してください。`,
-        rel, t.lineNum, 'schema:no-policy',
+        rel, t.lineNum, 'schema:no-policy', `table ${t.name}`,
       )
     } else {
       for (const policy of policies) {
@@ -350,7 +350,7 @@ function lintSchemaSql(schemaPath, dir, manifest, error, warn) {
             `(a)「organization_id IN (SELECT organization_id FROM profiles WHERE id = auth.uid())」` +
             ` または ` +
             `(b)「organization_id = (auth.jwt() ->> 'organization_id')::uuid」`,
-            rel, lineNum, 'schema:policy-pattern',
+            rel, lineNum, 'schema:policy-pattern', policyName,
           )
         }
       }
