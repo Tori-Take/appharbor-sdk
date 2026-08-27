@@ -9,7 +9,7 @@ export declare function isTableNameValid(
 ): boolean
 
 export declare const ALLOWED_DIRS: readonly [
-  'routes', 'server', 'components', 'db', 'lifecycle', 'assets',
+  'routes', 'server', 'components', 'db', 'lifecycle', 'assets', 'tests', 'docs',
 ]
 export type AllowedDir = typeof ALLOWED_DIRS[number]
 

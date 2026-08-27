@@ -37,7 +37,11 @@ export function isTableNameValid(tableName, cartridgeId, tablePrefix) {
   return tableName.startsWith(prefix)
 }
 
-export const ALLOWED_DIRS = ['routes', 'server', 'components', 'db', 'lifecycle', 'assets']
+export const ALLOWED_DIRS = [
+  'routes', 'server', 'components', 'db', 'lifecycle', 'assets',
+  'tests',  // 受け入れシナリオ（tests/scenarios.md）。工程再設計 Step 2 で標準構成に追加
+  'docs',   // カートリッジ固有のドキュメント（cartridge-template・degree-360-feedback が使用）
+]
 
 // ─── 全ホスト共通の禁止パターン ──────────────────────────────
 const FORBIDDEN_CALLS = [
